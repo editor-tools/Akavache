@@ -16,11 +16,18 @@
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\key.snk">
+      <Link>Key.snk</Link>
+    </None>
     <Compile Include="AsyncLock.cs" />
     <Compile Include="BlockingCollection.cs" />
     <Compile Include="OperationQueue.cs" />
@@ -38,33 +45,37 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCL.raw">
-      <HintPath>..\packages\SQLitePCL.raw_basic.0.7.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLitePCL.raw.dll</HintPath>
+      <HintPath>..\..\..\packages\SQLitePCL.raw_basic.0.7.2-GHfVS\lib\portable-net45+netcore45+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\SQLitePCL.raw.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Core.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Interfaces.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Linq.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="Splat">
-      <HintPath>..\packages\Splat.1.6.0\lib\Portable-net45+win+wpa81+wp80\Splat.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-PlatformServices.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="key.snk">
+      <Link>..\key.snk</Link>
+    </None>
     <None Include="packages.Akavache.Sqlite3.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\splat\Splat\Splat-Portable.csproj">
+      <Project>{0ec8dba1-d745-4ee5-993a-6026440ec3bf}</Project>
+      <Name>Splat-Portable</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Akavache\Akavache_Portable.csproj">
-      <Project>{EB73ADDD-2FE9-44C0-A1AB-20709B979B64}</Project>
+      <Project>{eb73addd-2fe9-44c0-a1ab-20709b979b64}</Project>
       <Name>Akavache_Portable</Name>
     </ProjectReference>
   </ItemGroup>

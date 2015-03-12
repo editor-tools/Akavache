@@ -15,7 +15,6 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Akavache\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <TargetFrameworkProfile />
-    <FodyPath>..\packages\Fody.1.20.0.0</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,37 +38,37 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Release\Net45\Akavache.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
-    <Reference Include="Splat, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Splat.1.6.0\lib\Net45\Splat.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Windows.Threading, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Rx-Xaml.2.2.5\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Xaml.2.2.5\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Xaml" />
@@ -81,6 +80,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\key.snk">
+      <Link>Key.snk</Link>
+    </None>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
@@ -113,7 +115,20 @@
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="key.snk">
+      <Link>..\key.snk</Link>
+    </None>
     <None Include="packages.Akavache_Net45.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\splat\Splat\Splat-Net45.csproj">
+      <Project>{252ce1c2-027a-4445-a3c2-e4d6c80a935a}</Project>
+      <Name>Splat-Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Akavache.Sqlite3\Akavache.Sqlite3.csproj">
+      <Project>{241c47df-ca8e-4296-aa03-2c48bb646abd}</Project>
+      <Name>Akavache.Sqlite3</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

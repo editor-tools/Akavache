@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EB73ADDD-2FE9-44C0-A1AB-20709B979B64}</ProjectGuid>
@@ -11,7 +11,7 @@
     <RootNamespace>Akavache</RootNamespace>
     <AssemblyName>Akavache</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -40,7 +40,14 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Portable-Net45+Win8+WP8+Wpa81\Akavache.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
+    <None Include="key.snk">
+      <Link>..\key.snk</Link>
+    </None>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
@@ -67,26 +74,29 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Splat">
-      <HintPath>..\packages\Splat.1.6.0\lib\Portable-net45+win+wpa81+wp80\Splat.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Core.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Interfaces.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-Linq.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\..\..\packages\Rx-PlatformServices.2.2.5\lib\portable-net45+winrt45+wp8+wpa81\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.Akavache_Portable.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\splat\Splat\Splat-Portable.csproj">
+      <Project>{0ec8dba1-d745-4ee5-993a-6026440ec3bf}</Project>
+      <Name>Splat-Portable</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
