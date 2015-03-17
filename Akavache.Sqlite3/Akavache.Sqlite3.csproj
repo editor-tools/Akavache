@@ -98,7 +98,8 @@
     <OutputPath>bin\Release\Portable-Net45+Win8+WP8+Wpa81\</OutputPath>
     <IntermediateOutputPath>obj\Release\Portable-Net45+WinRT45+WP8\</IntermediateOutputPath>
     <DefineConstants>TRACE;NETFX_CORE; USE_SQLITEPCL_RAW; USE_NEW_REFLECTION_API</DefineConstants>
-    <DocumentationFile>bin\Release\Portable-Net45+Win8+WP8+Wpa81\Akavache.Sqlite3.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
