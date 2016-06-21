@@ -26,6 +26,9 @@ namespace Akavache.Sqlite3
 
         static internal List<OperationQueueItem> CoalesceOperations(List<OperationQueueItem> inputItems)
         {
+            // Happy path, nothing to coalesce.
+            if (inputItems.Count <= 1) return inputItems;
+
             var ret = new List<OperationQueueItem>();
 
             if (inputItems.Any(x => x.OperationType == OperationType.GetKeysSqliteOperation ||
@@ -253,6 +256,7 @@ namespace Akavache.Sqlite3
                 case OperationType.GetKeysSqliteOperation:
                 case OperationType.InvalidateAllSqliteOperation:
                 case OperationType.VacuumSqliteOperation:
+                case OperationType.DeleteExpiredSqliteOperation:
                 case OperationType.DoNothing:
                     return default(string);
                 default:

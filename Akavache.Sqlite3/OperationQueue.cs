@@ -32,6 +32,7 @@ namespace Akavache.Sqlite3
         readonly BulkInvalidateByTypeSqliteOperation bulkInvalidateType;
         readonly InvalidateAllSqliteOperation invalidateAll;
         readonly VacuumSqliteOperation vacuum;
+        readonly DeleteExpiredSqliteOperation deleteExpired;
         readonly GetKeysSqliteOperation getAllKeys;
         readonly BeginTransactionSqliteOperation begin;
         readonly CommitTransactionSqliteOperation commit;
@@ -50,6 +51,7 @@ namespace Akavache.Sqlite3
             bulkInvalidateType = new BulkInvalidateByTypeSqliteOperation(conn);
             invalidateAll = new InvalidateAllSqliteOperation(conn);
             vacuum = new VacuumSqliteOperation(conn, scheduler);
+            deleteExpired = new DeleteExpiredSqliteOperation(conn, scheduler);
             getAllKeys = new GetKeysSqliteOperation(conn, scheduler);
             begin = new BeginTransactionSqliteOperation(conn);
             commit = new CommitTransactionSqliteOperation(conn);
@@ -76,7 +78,18 @@ namespace Akavache.Sqlite3
                 {
                     toProcess.Clear();
 
-                    using (await flushLock.LockAsync(shouldQuit.Token)) 
+                    IDisposable @lock = null;
+
+                    try
+                    {
+                        @lock = await flushLock.LockAsync(shouldQuit.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+
+                    using (@lock)
                     {
                         // NB: We special-case the first item because we want to 
                         // in the empty list case, we want to wait until we have an item.
@@ -130,31 +143,30 @@ namespace Akavache.Sqlite3
                 } 
                 catch (OperationCanceledException) { }
 
-                var newQueue = new BlockingCollection<OperationQueueItem>();
-                ProcessItems(CoalesceOperations(Interlocked.Exchange(ref operationQueue, newQueue).ToList()));
+                using (flushLock.LockAsync().Result)
+                {
+                    FlushInternal();
+                }
+
                 start = null;
             }));
         }
 
         public IObservable<Unit> Flush()
         {
-            var ret = new AsyncSubject<Unit>();
+            var noop = OperationQueueItem.CreateUnit(OperationType.DoNothing);
+            operationQueue.Add(noop);
 
-            return Task.Run(async () => 
-            {
-                // NB: We add a "DoNothing" operation so that the thread waiting
-                // on an item will always have one instead of waiting the full timeout
-                // before we can run the flush
-                operationQueue.Add(OperationQueueItem.CreateUnit(OperationType.DoNothing));
+            return noop.CompletionAsUnit;
+        }
 
-                using (await flushLock.LockAsync()) 
-                {
-                    var newQueue = new BlockingCollection<OperationQueueItem>();
-                    var existingItems = Interlocked.Exchange(ref operationQueue, newQueue).ToList();
+        // NB: Callers must hold flushLock to call this
+        void FlushInternal()
+        {
+            var newQueue = new BlockingCollection<OperationQueueItem>();
+            var existingItems = Interlocked.Exchange(ref operationQueue, newQueue).ToList();
 
-                    ProcessItems(CoalesceOperations(existingItems));
-                }
-            }).ToObservable();
+            ProcessItems(CoalesceOperations(existingItems));
         }
 
         public AsyncSubject<IEnumerable<CacheElement>> Select(IEnumerable<string> keys)
@@ -207,10 +219,55 @@ namespace Akavache.Sqlite3
 
         public AsyncSubject<Unit> Vacuum()
         {
-            var ret = OperationQueueItem.CreateUnit(OperationType.VacuumSqliteOperation);
-            operationQueue.Add(ret);
+            // Vacuum is a special snowflake. We want to delete all the expired rows before
+            // actually vacuuming. Unfortunately vacuum can't be run in a transaction so we'll
+            // claim an exclusive lock on the queue, drain it and run the delete first before
+            // running our vacuum op without any transactions.
+            var ret = new AsyncSubject<Unit>();
 
-            return ret.CompletionAsUnit;
+            Task.Run(async () =>
+            {
+                IDisposable @lock = null;
+                try
+                {
+                    // NB. While the documentation for SemaphoreSlim (which powers AsyncLock)
+                    // doesn't guarantee ordering the actual (current) implementation[1]
+                    // uses a linked list to queue incoming requests so by adding ourselves
+                    // to the queue first and then sending a no-op to the main queue to
+                    // force it to finish up and release the lock we avoid any potential
+                    // race condition where the main queue reclaims the lock before we
+                    // have had a chance to acquire it.
+                    //
+                    // 1. http://referencesource.microsoft.com/#mscorlib/system/threading/SemaphoreSlim.cs,d57f52e0341a581f
+                    var lockTask = flushLock.LockAsync(shouldQuit.Token);
+                    operationQueue.Add(OperationQueueItem.CreateUnit(OperationType.DoNothing));
+
+                    @lock = await lockTask;
+
+                    var deleteOp = OperationQueueItem.CreateUnit(OperationType.DeleteExpiredSqliteOperation);
+                    operationQueue.Add(deleteOp);
+
+                    FlushInternal();
+
+                    await deleteOp.CompletionAsUnit;
+
+                    var vacuumOp = OperationQueueItem.CreateUnit(OperationType.VacuumSqliteOperation);
+
+                    MarshalCompletion(vacuumOp.Completion, vacuum.PrepareToExecute(), Observable.Return(Unit.Default));
+
+                    await vacuumOp.CompletionAsUnit;
+                }
+                finally
+                {
+                    if (@lock != null) @lock.Dispose();
+                }
+            })
+            .ToObservable()
+            .ObserveOn(scheduler)
+            .Multicast(ret)
+            .PermaRef();
+
+            return ret;
         }
 
         public AsyncSubject<IEnumerable<string>> GetAllKeys()
@@ -229,6 +286,7 @@ namespace Akavache.Sqlite3
         void ProcessItems(List<OperationQueueItem> toProcess)
         {
             var commitResult = new AsyncSubject<Unit>();
+
             begin.PrepareToExecute()();
 
             foreach (var item in toProcess) 
@@ -236,6 +294,7 @@ namespace Akavache.Sqlite3
                 switch (item.OperationType)
                 {
                     case OperationType.DoNothing:
+                        MarshalCompletion(item.Completion, () => { }, commitResult);
                         break;
                     case OperationType.BulkInsertSqliteOperation:
                         MarshalCompletion(item.Completion, bulkInsertKey.PrepareToExecute(item.ParametersAsElements), commitResult);
@@ -258,9 +317,11 @@ namespace Akavache.Sqlite3
                     case OperationType.InvalidateAllSqliteOperation:
                         MarshalCompletion(item.Completion, invalidateAll.PrepareToExecute(), commitResult);
                         break;
-                    case OperationType.VacuumSqliteOperation:
-                        MarshalCompletion(item.Completion, vacuum.PrepareToExecute(), commitResult);
+                    case OperationType.DeleteExpiredSqliteOperation:
+                        MarshalCompletion(item.Completion, deleteExpired.PrepareToExecute(), commitResult);
                         break;
+                    case OperationType.VacuumSqliteOperation:
+                        throw new ArgumentException("Vacuum operation can't run inside transaction");
                     default:
                         throw new ArgumentException("Unknown operation");
                 }
@@ -328,7 +389,7 @@ namespace Akavache.Sqlite3
         {
             var toDispose = new IDisposable[] {
                 bulkSelectKey, bulkSelectType, bulkInsertKey, bulkInvalidateKey,
-                bulkInvalidateType, invalidateAll, vacuum, getAllKeys, begin, 
+                bulkInvalidateType, invalidateAll, vacuum, deleteExpired, getAllKeys, begin, 
                 commit,
             };
 

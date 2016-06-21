@@ -299,7 +299,7 @@ namespace Akavache.Sqlite3
             {
                 versionNumber = Connection.ExecuteScalar<int>("SELECT Version from SchemaInfo ORDER BY Version DESC LIMIT 1");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 shouldCreateSchemaTable = true;
             }
@@ -364,8 +364,14 @@ namespace Akavache.Sqlite3
             var settings = Locator.Current.GetService<JsonSerializerSettings>() ?? new JsonSerializerSettings();
             var serializer = JsonSerializer.Create(settings);
             var reader = new BsonReader(new MemoryStream(data));
+            var forcedDateTimeKind = BlobCache.ForcedDateTimeKind;
 
-            try 
+            if (forcedDateTimeKind.HasValue)
+            {
+                reader.DateTimeKindHandling = forcedDateTimeKind.Value;
+            }
+
+            try
             {
                 try
                 {

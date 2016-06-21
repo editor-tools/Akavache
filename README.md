@@ -44,8 +44,7 @@ added to support:
 
 * **Xamarin.Android** - No issues.
 
-* **.NET 4.5 Desktop (WPF)** - You must mark your application as `x86`, or else
-  you will get a strange runtime error about SQLitePCL_Raw not loading correctly.
+* **.NET 4.5 Desktop (WPF)** - No issues
 
 * **Windows Phone 8.0** - You must mark your application as `x86` or `ARM`, or
   else you will get a strange runtime error about SQLitePCL_Raw not loading
@@ -77,6 +76,9 @@ The most straightforward way to use Akavache is via the object extensions:
 ```cs
 using System.Reactive.Linq;   // IMPORTANT - this makes await work!
 
+// Make sure you set the application name before doing any inserts or gets
+BlobCache.ApplicationName = "AkavacheExperiment";
+
 var myToaster = new Toaster();
 await BlobCache.UserAccount.InsertObject("toaster", myToaster);
 
@@ -85,12 +87,12 @@ await BlobCache.UserAccount.InsertObject("toaster", myToaster);
 //
 
 // Using async/await
-var toaster = await BlobCache.UserAccount.GetObjectAsync<Toaster>("toaster");
+var toaster = await BlobCache.UserAccount.GetObject<Toaster>("toaster");
 
 // or without async/await
 Toaster toaster;
 
-BlobCache.UserAccount.GetObjectAsync<Toaster>("toaster")
+BlobCache.UserAccount.GetObject<Toaster>("toaster")
     .Subscribe(x => toaster = x, ex => Console.WriteLine("No Key!"));
 ```
 
