@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
-using System.Reactive;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Akavache.Sqlite3.Internal;
-using SQLitePCL;
 using Splat;
-
+using SQLitePCL;
 using AsyncLock = Akavache.Sqlite3.Internal.AsyncLock;
 
 namespace Akavache.Sqlite3
@@ -37,8 +36,8 @@ namespace Akavache.Sqlite3
         readonly BeginTransactionSqliteOperation begin;
         readonly CommitTransactionSqliteOperation commit;
 
-        BlockingCollection<OperationQueueItem> operationQueue =
-            new BlockingCollection<OperationQueueItem>();
+        Akavache.Sqlite3.Internal.BlockingCollection<OperationQueueItem> operationQueue =
+            new Akavache.Sqlite3.Internal.BlockingCollection<OperationQueueItem>();
 
         public SqliteOperationQueue(SQLiteConnection conn, IScheduler scheduler)
         {
@@ -161,7 +160,7 @@ namespace Akavache.Sqlite3
         // NB: Callers must hold flushLock to call this
         void FlushInternal()
         {
-            var newQueue = new BlockingCollection<OperationQueueItem>();
+            var newQueue = new Akavache.Sqlite3.Internal.BlockingCollection<OperationQueueItem>();
             var existingItems = Interlocked.Exchange(ref operationQueue, newQueue).ToList();
 
             ProcessItems(CoalesceOperations(existingItems));
