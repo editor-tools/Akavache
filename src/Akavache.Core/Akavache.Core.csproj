@@ -1,10 +1,12 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
   <PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net461;uap10.0.16299;Xamarin.iOS10;Xamarin.Mac20;MonoAndroid80;netcoreapp2.0</TargetFrameworks>
+		<TargetFramework>net461</TargetFramework>
 		<AssemblyName>Akavache</AssemblyName>
     <RootNamespace>Akavache</RootNamespace>
     <Description>An asynchronous, persistent key-value store for desktop and mobile applications on .NET</Description>
     <PackageId>akavache.core</PackageId>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +14,7 @@
     <None Include="Platforms\**\*.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
-		<PackageReference Include="Splat" Version="4.0.2" />
+    <ProjectReference Include="..\..\..\Splat\src\Splat\Splat.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
