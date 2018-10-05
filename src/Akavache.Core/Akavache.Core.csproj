@@ -12,7 +12,7 @@
   <ItemGroup>
     <Compile Remove="Platforms\**\*.cs" />
     <None Include="Platforms\**\*.cs" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
     <ProjectReference Include="..\..\..\Splat\src\Splat\Splat.csproj" />
   </ItemGroup>
